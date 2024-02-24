@@ -14,7 +14,11 @@
           <template #actions>
             <v-btn
               color="red"
-              @click="displayBackButtonDialog = false, appStatus = appStatusEnum.HOME, addedPatterns = [], importFileError = '', importPasteBoxError = ''"
+              @click="displayBackButtonDialog = false,
+                      appStatus = appStatusEnum.HOME, 
+                      addedPatterns = [], 
+                      importFileError = '', 
+                      importPasteBoxError = ''"
             >Proceed</v-btn>
             <v-btn
               color="primary"
@@ -28,7 +32,6 @@
         </Dialog>
 
         <v-sheet>
-
           <div 
             v-for="pattern in addedPatterns"
             style="cursor: pointer"
@@ -100,7 +103,11 @@
                   @click:clear="importFileInput = null,
                                 importFileData = ''"
                 ></v-file-input>
-                <v-alert v-if="importFileError !== ''" type="warning" :text="importFileError">
+                <v-alert 
+                  v-if="importFileError !== ''" 
+                  type="warning" 
+                  :text="importFileError"
+                >
                 </v-alert>
               </div>
             </template>
@@ -124,7 +131,7 @@
           <v-sheet 
             v-if="appStatus !== appStatusEnum.HOME"
             class="overflow-auto scrollbar"
-            style="height: 94vh;" 
+            style="height: 93.5vh;" 
           >
             <div 
               v-for="(pattern, index) in addedPatterns"
@@ -132,40 +139,55 @@
             >
               <PatternParent 
                 v-model:title="addedPatterns[index].displayName"
-                :subtitle="addedPatterns[index].name"
+                v-model:disabled="addedPatterns[index].disabled"
                 @update:delete="deletePattern(index)"
+                :subtitle="addedPatterns[index].name"
                 :id="`pattern-id-${addedPatterns[index].id}`"
               >
-              <template #orderButtons>
-                <v-btn-group variant="outlined">
-                  <v-btn
-                    :disabled="index === 0 ? true: false"
-                    icon="mdi-arrow-up" 
-                    class="mr-0"
-                    @click="handleOrderButtons(-1, index, addedPatterns[index].id)"
-                  ></v-btn>
-                  <v-btn
-                    :disabled="index === addedPatterns.length -1 ? true: false"
-                    icon="mdi-arrow-down" 
-                    class="ml-0"
-                    @click="handleOrderButtons(1, index, addedPatterns[index].id)"
-                  ></v-btn>
-                </v-btn-group>
+                <template #orderButtons>
+                  <v-btn-group variant="outlined">
+                    <v-btn
+                      :disabled="index === 0 ? true: false"
+                      icon="mdi-arrow-up" 
+                      class="mr-0"
+                      @click="handleOrderButtons(-1, index, addedPatterns[index].id)"
+                    ></v-btn>
+                    <v-btn
+                      :disabled="index === addedPatterns.length -1 ? true: false"
+                      icon="mdi-arrow-down" 
+                      class="ml-0"
+                      @click="handleOrderButtons(1, index, addedPatterns[index].id)"
+                    ></v-btn>
+                  </v-btn-group>
 
-              </template>
-              <template #patternInterface>
-                <PatternInterface
-                  v-model:data="addedPatterns[index]"
-                />
-              </template>
+                </template>
+                <template #patternInterface>
+                  <PatternInterface
+                    v-model:data="addedPatterns[index]"
+                  />
+                </template>
               </PatternParent> 
             </div>
-            <v-btn
-              v-show="addedPatterns.length"
-              class="ml-4"
-              @click="handleSubmitClick()"
-            >Submit</v-btn>
-            <div v-show="addedPatterns.length" class="ml-4 text-caption mt-2">
+            <div class="d-flex justify-space-between">
+              <v-btn
+                v-show="addedPatterns.length"
+                class="ml-4"
+                @click="handleSubmitClick()"
+              >Submit</v-btn>
+              <div 
+                v-show="addedPatterns.length" 
+                style="margin-bottom: -40px; margin-top: -10px;" 
+              >
+                <v-switch
+                  v-model="condenseOutput"
+                  label="Condense Output"
+                ></v-switch>
+              </div>
+            </div>
+            <div 
+              v-show="addedPatterns.length" 
+              class="ml-4 text-caption mt-2"
+            >
               <v-chip label size="x-small">CTRL</v-chip>
               +
               <v-chip label size="x-small">S</v-chip>
@@ -199,11 +221,26 @@
             :color="submitSnackbarData.color"
           >
             <template #content>
-              <h3>{{ submitSnackbarData.text }}</h3>
+              <h3
+                class="mb-2" 
+                :style="{
+                  'max-height': '500px',
+                  overflow: 'auto',
+                  'word-wrap': 'break-word',
+                }"
+              >{{ submitSnackbarData.text }}</h3>
             </template>
             <template #actions>
-              <v-btn variant="outlined" class="ma-2" @click="downloadJSONData()">Download File</v-btn>
-              <v-btn variant="text" class="ma-2" @click="showSubmitSnackbar = false">Close</v-btn>
+              <v-btn 
+                variant="outlined" 
+                class="ma-2" 
+                @click="downloadJSONData()"
+              >Download File</v-btn>
+              <v-btn 
+                variant="text" 
+                class="ma-2" 
+                @click="showSubmitSnackbar = false"
+              >Close</v-btn>
             </template>
           </Snackbar>
       </v-container>
@@ -218,7 +255,7 @@ import PatternParent from '@/components/PatternParent.vue'
 import PatternInterface from '@/components/PatternInterface.vue'
 import Snackbar from './components/Snackbar.vue'
 import Dialog from './components/Dialog.vue'
-import { patterns } from '@/data/patterns'
+import { patterns, Pattern, variableMapping } from '@/data/patterns'
 import { appStatusEnum } from '@/data/appStatusEnum'
 import { importStatusEnum } from '@/data/importStatusEnum'
 import type { SolidColor,
@@ -288,30 +325,33 @@ const submitSnackbarData = ref({
   timeout: 5000,
 })
 
+const condenseOutput = ref(true)
+
 async function handleSubmitClick() {
-  await navigator.clipboard.writeText(JSON.stringify(addedPatterns.value))
-    .then(
-      () => {
-        submitSnackbarData.value.color = 'success'
-        submitSnackbarData.value.text = 'JSON Template Copied to Clipboard'
-      },
-      () => {
-        submitSnackbarData.value.color = 'error'
-        submitSnackbarData.value.text = `Could not access clipboard.
-        Please copy manually: ${ JSON.stringify(addedPatterns.value) }`
-      },
-    )
+
+  submitSnackbarData.value.color = 'success'
+  submitSnackbarData.value.text = condenseOutput.value ? JSON.stringify(convertToCondensedVersion(addedPatterns.value)) : JSON.stringify(addedPatterns.value)
+
+  // await navigator.clipboard.writeText(JSON.stringify(addedPatterns.value))
+  //   .then(
+  //     () => {
+  //       submitSnackbarData.value.color = 'success'
+  //       submitSnackbarData.value.text = 'JSON Template Copied to Clipboard'
+  //     },
+  //     () => {
+  //       submitSnackbarData.value.color = 'error'
+  //       submitSnackbarData.value.text = `Could not access clipboard.
+  //       Please copy manually: ${ JSON.stringify(addedPatterns.value) }`
+  //     },
+  //   )
 
   showSubmitSnackbar.value = true
 
-  /* 
-    This is api post request
-
-    await axios.post('/api/upload', JSON.stringify(addedPatterns.value))
-    then add some snackbar with error or not if returns 200
-
-
-  */
+  try {
+    await axios.post(`${postLocation.value}//submit`, JSON.stringify(addedPatterns.value)) // already has http://
+  } catch (error) {
+    console.log('Error posting patterns to server:', error)
+  }
 }
 
 
@@ -335,13 +375,13 @@ function displayBackButtonDialogHelper() {
 
 const displayImportDialog = ref(false)
 
-const importPasteBoxContent = ref("")
-const importPasteBoxError = ref("")
+const importPasteBoxContent = ref('')
+const importPasteBoxError = ref('')
 
 const currentImportType = ref(importStatusEnum.PASTE)
 const importFileInput = ref()
-const importFileData = ref("")
-const importFileError = ref("")
+const importFileData = ref('')
+const importFileError = ref('')
 
 function handleClickImportButton() {
   if (currentImportType.value === importStatusEnum.PASTE) {
@@ -384,6 +424,47 @@ function handleImportFileInput() {
     importFileError.value = ""
   }
 }
+
+const postLocation = ref('')
+const getCurrentStoredData = async () => {
+
+  try {
+    const response = await fetch('src\\ip.txt')
+    postLocation.value = await response.text()
+    console.log(postLocation.value)
+  } catch (error) {
+      console.log('Cannot read data from json file on startup: ', error)
+  }
+}
+
+getCurrentStoredData()
+
+function convertToCondensedVersion(data: Pattern[]) {
+  // will need a way to revert it... for importing
+  return data.map(obj => {
+    const condensedData: { [key: number | string]: any } = {}
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+        condensedData[variableMapping[key]] = convertToCondensedVersion([obj[key] as Pattern])[0]
+      } else if (typeof variableMapping[key] !== 'undefined') {
+        if (typeof obj[key] === "boolean") {
+          // Map true/false to 1/0
+          condensedData[variableMapping[key]] = obj[key] ? 1 : 0
+        } else if (typeof obj[key] === "number") {
+          condensedData[variableMapping[key]] = obj[key].toFixed(1)
+        } else {
+          condensedData[variableMapping[key]] = obj[key]
+        }
+      } else {
+        continue
+        // this is if data not in conversion list
+        // condensedData[key] = obj[key]
+      }
+    }
+    return condensedData
+  })
+}
+
 </script>
 
 <style scoped>

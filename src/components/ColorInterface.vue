@@ -3,7 +3,7 @@
     <Dialog v-model:showDialog="colorDialog">
         <template #content>
           <v-color-picker
-          :modes="['hsl']"
+          :modes="['hex']"
           :show-swatches="true"
           :hide-inputs="true"
           :hide-sliders="true"
@@ -22,41 +22,40 @@
           >OK</v-btn>
         </template>
     </Dialog>
-
-    <v-card elevation="0" class="mx-6">
-      <v-checkbox
-        v-if="'on' in colors"
-        v-model="colors.on"
-        :label="colors.name"
-      ></v-checkbox>
+    <v-card :variant="colors.on ? 'outlined' : 'flat'"  class="mx-6 mb-6">
+      <div :class="`d-flex ${'on' in colors ? 'justify-space-between' : 'justify-center'} pa-3`">
+        <v-checkbox
+          v-if="'on' in colors"
+          v-model="colors.on"
+          :label="colors.name"
+        ></v-checkbox>
+        <div 
+           v-show="colors.on === undefined || colors.on"
+          class="mr-4 mt-4"
+        >
+          <v-btn
+            :icon="colors.linkColors ? 'mdi-link' : 'mdi-link-off'"
+            variant="plain"
+            density="compact"
+            @click="colors.linkColors = !colors.linkColors"
+          ></v-btn>
+          <v-tooltip activator="parent" location="top">{{ colors.linkColors ? "Unlink Colors" : "Link Colors" }}</v-tooltip>
+        </div>
+      </div>
       <v-expand-transition v-show="colors.on === undefined || colors.on">
         <v-card>
-          <v-card-actions class="ml-6">
-            <div>
-              <v-btn
-                :icon="colors.linkColors ? 'mdi-link' : 'mdi-link-off'"
-                variant="plain"
-                density="compact"
-                @click="colors.linkColors = !colors.linkColors"
-              ></v-btn>
-              <v-tooltip activator="parent" location="top">{{ colors.linkColors ? "Unlink Colors" : "Link Colors" }}</v-tooltip>
-            </div>
-          </v-card-actions>
-
           <!-- colors -->
-          <div v-if="colors.linkColors" class="mb-4">
+          <div v-if="colors.linkColors">
             <v-col
               v-for="(_, index) in colors.color.slice(2, -1)"
               :key="index"
-              class="d-flex justify-center"
+              class="d-flex justify-center mb-4"
             >
-              <v-btn :style="{'background': `hsl(
-                ${colors.color[index].h}
-                ${colors.color[index].s*100}%
-                ${colors.color[index].l*100}%
-                )`,
+              <v-btn 
+                :style="{
+                'background': colors.color[index],
                 'width': '45%'}"
-                @click="colorDialog = true;
+                @click="colorDialog = true,
                         colorIndex = 0"
               ></v-btn>
             </v-col>
@@ -66,18 +65,15 @@
               v-for="(_, index) in colors.color.slice(1)"
               :key="index"
             >
-              <v-btn :style="{'background': `hsl(
-                ${colors.color[index+1].h}
-                ${colors.color[index+1].s*100}%
-                ${colors.color[index+1].l*100}%
-                )`,
-                'width': '100%'}"
-                @click="colorDialog = true;
+              <v-btn 
+                :style="{
+                  'background': colors.color[index + 1],
+                  'width': '100%'}"
+                @click="colorDialog = true,
                         colorIndex = index + 1"
               ></v-btn>
             </v-col>
           </div>
-
           <!-- sliders -->
           <v-row class="d-flex align-center">
               <v-col
@@ -152,11 +148,7 @@ const props= defineProps<{
     name: string,
     on: boolean,
     linkColors: boolean,
-    color: {
-      'h': number,
-      's': number,
-      'l': number
-    }[],
+    color: string[],
     speed: number,
     intensity: number,
     dutyCycle: number,

@@ -27,26 +27,22 @@
         <div v-if="data.color.linkColors">
           <v-chip
             class="ml-1"
-            :style="{'background': `hsl(
-                  ${data.color.color[0].h} 
-                  ${data.color.color[0].s*100}% 
-                  ${data.color.color[0].l*100}%
-                  )`,
-                  'width': '30px'}"
+            :style="{
+              'background': data.color.color[0],
+              'width': '30px',
+            }"
             @click="expand = true"
           ></v-chip>
         </div>
         <div v-else>
           <v-chip
-            v-for="color in data.color.color.slice(1)"
-            :key="color.h"
+            v-for="(color, index) in data.color.color.slice(1)"
+            :key="index"
             class="ml-1"
-            :style="{'background': `hsl(
-                    ${color.h} 
-                    ${color.s*100}% 
-                    ${color.l*100}%
-                    )`,
-                    'width': '30px'}"
+            :style="{
+              'background': color,
+              'width': '30px',
+            }"
           ></v-chip>
         </div>
         <v-tooltip activator="parent" location="top">Color</v-tooltip>
@@ -68,13 +64,14 @@
         <div 
           v-for="(_, key) in colorInterfaceColors"
           :key="key"
+          class="mb-2"
         >
           <ColorInterface 
             v-model:colors="colorInterfaceColors[key]"
             :patternType="String(key)"
           />
         </div>   
-        <v-row class="d-flex justify-center">
+        <v-row class="d-flex justify-center mt-4">
           <v-col cols="6" >
             <v-slider 
               v-model="data.patternSpeed"
@@ -127,7 +124,7 @@ import type { SolidColor,
 import { colorKeys } from '@/data/types'
 import { sliderDisplay } from '@/functions/sliderDisplay'
 
-const props= defineProps<{
+const props = defineProps<{
   data: SolidColor|
         PulsingColor|
         Confetti|

@@ -3,30 +3,33 @@
     <v-card>
       <v-container class="d-inline-flex">
         <!-- add breakpoint here -->
-            <div style="max-width: 65%">
-              <v-card-title class="text-truncate">
-                {{ title }}
-              </v-card-title>
-              
-              <v-card-subtitle style="margin-top: -10px">
-                {{ subtitle }}
-              </v-card-subtitle>
-            </div>
-            <v-col style="margin-top: -16px; margin-left: -10px; margin-right: -10px">
-              <v-card-actions>
-                <v-btn 
-                  icon="mdi-pencil"
-                  @click="titleDialog = !titleDialog"
-                ></v-btn>
-                <v-spacer></v-spacer>
-                <slot name="orderButtons"></slot>
-                <v-btn
-                  icon="mdi-delete"
-                  color="red"
-                  @click="$emit('update:delete')"
-                ></v-btn>
-              </v-card-actions>
-            </v-col>
+        <div style="max-width: 65%">
+          <v-card-title class="text-truncate">
+            {{ title }}
+          </v-card-title>
+          
+          <v-card-subtitle style="margin-top: -10px">
+            {{ subtitle }}
+          </v-card-subtitle>
+        </div>
+        <v-btn 
+          icon="mdi-pencil"
+          variant="text"
+          class="mx-2"
+          @click="titleDialog = !titleDialog"
+        ></v-btn>
+        <v-switch
+          v-model="disabled"
+          color="green"
+          :label="disabled ? 'Enabled' : 'Disabled'"
+        ></v-switch>
+        <slot name="orderButtons"></slot>
+        <v-btn
+          icon="mdi-delete"
+          color="red"
+          variant="text"
+          @click="$emit('update:delete')"
+        ></v-btn>
       </v-container>
       <slot name="patternInterface"></slot>
     </v-card>
@@ -63,15 +66,23 @@ import { ref, computed } from'vue'
 const props = defineProps<{
   title: string,
   subtitle: string,
+  disabled: boolean
 }>()
 
 const emits = defineEmits([
   "update:title",
+  "update:disabled",
   "update:delete"
 ])
 const title = computed({
   get: () => props.title,
   set: (value) => emits("update:title", value)
+})
+
+// has to be opposite for naming
+const disabled = computed({
+  get: () => !props.disabled,
+  set: (value) => emits("update:disabled", !value)
 })
 
 const titleDialog = ref(false)

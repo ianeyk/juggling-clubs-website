@@ -4,56 +4,29 @@ type BasePattern = {
     name: string,
     patternName: string,
     linkColors: boolean,
+    disabled: boolean,
     color: {
         name: string,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }
-    ]},
+        color: [
+            string,
+            string,
+            string,
+            string
+        ]
+    },
     sparkleColor: {
         name: string,
         on: boolean,
         speed: number,
         intensity: number,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }],
+        color: [
+            string,
+            string,
+            string,
+            string
+        ]
     },
     flashColor: {
         name: string,
@@ -61,26 +34,12 @@ type BasePattern = {
         speed: number,
         dutyCycle: number,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }],
+        color: [
+            string,
+            string,
+            string,
+            string
+        ]
     },
     patternSpeed: number,
     colorCycleSpeed: number,
@@ -91,32 +50,19 @@ type BaseSmallPattern = {
     displayName: string,
     name: string,
     patternName: string,
+    disabled: boolean,
     sparkleColor: {
         name: string,
         on: boolean,
         speed: number,
         duration: number,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }],
+        color: [
+            string,
+            string,
+            string, 
+            string
+        ]
     },
     flashColor: {
         name: string,
@@ -124,26 +70,12 @@ type BaseSmallPattern = {
         speed: number,
         duration: number,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }],
+        color: [
+            string,
+            string,
+            string,
+            string
+        ]
     },
     patternSpeed: number,
     synchronized: boolean,
@@ -160,27 +92,13 @@ export type MultiPole = BasePattern & {
         speed: number,
         duration: number,
         linkColors: boolean,
-        color: [{
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        },
-        {
-            "h": number,
-            "s": number,
-            "l": number
-        }],
-    }
+        color: [
+            string,
+            string,
+            string,
+            string
+        ]
+     }
 }
 export type VerticalWave = MultiPole
 export type Torch = MultiPole
