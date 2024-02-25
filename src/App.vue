@@ -348,7 +348,12 @@ async function handleSubmitClick() {
   showSubmitSnackbar.value = true
 
   try {
-    await axios.post(`${postLocation.value}//submit`, JSON.stringify(addedPatterns.value)) // already has http://
+     // already has http://
+    await axios.post(`${postLocation.value}/submit`, JSON.stringify(addedPatterns.value), {
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
   } catch (error) {
     console.log('Error posting patterns to server:', error)
   }
