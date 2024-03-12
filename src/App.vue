@@ -34,6 +34,7 @@
         <v-sheet>
           <div 
             v-for="pattern in addedPatterns"
+            :key="pattern.id"
             style="cursor: pointer"
             class="hover-underline"
             @click="scrollToElement(pattern.id)"
